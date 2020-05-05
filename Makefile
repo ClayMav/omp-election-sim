@@ -1,5 +1,5 @@
-CC=g++
-CFLAGS=-fopenmp
+CC=g++-9
+CFLAGS=-fopenmp -std=c++11
 
 default: 
-	$(CC) *.cpp -o electionsim
+	$(CC) $(CFLAGS) *.cpp -o electionsim
