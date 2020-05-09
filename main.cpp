@@ -57,16 +57,14 @@ PollResult simulateOneElection(map<string, PollResult> polls, map<string, int> e
 
   float poll;
   float adjustedPoll;
-
-  map<string, PollResult>::iterator it = polls.begin();
-  while (it != polls.end()) {
+  #pragma omp parallel for reduction(+:votes1,votes2)
+  for (auto it = polls.begin(); it != polls.end(); it++) {
     poll = it->second.democrat; 
     adjustedPoll = addNoise(poll, marginOfError);
     if (adjustedPoll >= 50.0) 
       votes1 += electoralVotes[it->first];
     else
       votes2 += electoralVotes[it->first];
-    it++;
   }
   return PollResult(votes1, votes2);
 }
@@ -76,6 +74,8 @@ tuple<float,float,float> simulateMultipleElections(map<string, PollResult> polli
     int winCount1 = 0;
     int winCount2 = 0;
     int tieCount = 0;
+    //#pragma omp parallel
+    //#pragma omp for
     for (int i = 0; i < numTrials; i++) {
       PollResult votes = simulateOneElection(pollingData, electoralVotes, marginOfError);
       if (votes.democrat > votes.republican)
